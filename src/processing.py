@@ -4,12 +4,16 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 
-try:
-    from src.negation_words import NEGATIVE_WORDS, negative_words
-except ImportError:
-    from negation_words import NEGATIVE_WORDS, negative_words
+NEGATIVE_WORDS = {
+    "no", "not", "none", "neither", "never", "nobody", "nothing", "nowhere", 
+    "without", "against", "negative", "deny", "refuse", "reject", "decline",
+    "doesn't", "isn't", "wasn't", "shouldn't", "won't", "can't", "couldn't", 
+    "don't", "haven't", "hasn't", "hadn't", "aren't", "weren't", "wouldn't", 
+    "daren't", "needn't", "didn't", "doesnt", "isnt", "wasnt", "shouldnt", 
+    "wont", "cant", "couldnt", "dont", "havent", "hasnt", "hadnt", "arent", 
+    "weren't", "wouldnt", "darent", "neednt", "didnt"
+}
 
-# Ensure required NLTK data packages are available quietly
 for pkg in ["stopwords", "punkt", "punkt_tab", "wordnet"]:
     try:
         nltk.download(pkg, quiet=True)
@@ -18,8 +22,7 @@ for pkg in ["stopwords", "punkt", "punkt_tab", "wordnet"]:
 
 # Initialize once for speed
 lemmatizer = WordNetLemmatizer()
-negation_set = NEGATIVE_WORDS if "NEGATIVE_WORDS" in locals() else set(negative_words)
-stop_words = set(stopwords.words("english")) - negation_set
+stop_words = set(stopwords.words("english")) - NEGATIVE_WORDS
 
 
 def clean_noise(text):
