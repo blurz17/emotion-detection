@@ -1,3 +1,6 @@
+import math
+
+
 def comparison(data_set, context, word):
     tria = 0
     bia = 0
@@ -28,6 +31,7 @@ def ngram_model(sentences, data_set):
     for number, sentence in enumerate(sentences, start=1):
         sentence = ["<s>", "<s>"] + sentence + ["</s>"]
         probability = 1.0
+        log_probability = 0.0
 
         for i in range(2, len(sentence)):
             context = tuple(sentence[i-2:i])
@@ -40,8 +44,15 @@ def ngram_model(sentences, data_set):
 
             print(f"P({word} | {context}) = ({tria} + 1)/({bia} + {V}) = {word_probability:.6e}")
 
+            # Product of probabilities (raw)
             probability *= word_probability
 
-        sentence_probabilities[number] = probability
+            # Sum of log probabilities (numerically stable, avoids underflow)
+            log_probability += math.log(word_probability)
+
+        sentence_probabilities[number] = {
+            "log_probability": log_probability,
+            "probability": probability,
+        }
 
     return sentence_probabilities

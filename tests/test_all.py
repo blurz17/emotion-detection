@@ -75,8 +75,11 @@ class TestNGramModel(unittest.TestCase):
     def test_ngram_model_probability(self):
         test_sentences = [["i", "love", "nlp"]]
         dataset = [["i", "love", "nlp"]]
-        probs = ngram_model(test_sentences, dataset)
-        self.assertGreater(probs[1], 0.0)
+        results = ngram_model(test_sentences, dataset)
+        self.assertIn("log_probability", results[1])
+        self.assertIn("probability", results[1])
+        self.assertGreater(results[1]["probability"], 0.0)
+        self.assertLess(results[1]["log_probability"], 0.0)
 
 
 if __name__ == "__main__":

@@ -37,7 +37,9 @@ print("=" * 60)
 probabilities = ngram_model(sentences, data_set)
 
 print("\n" + "=" * 60)
-print("4. FINAL SENTENCE PROBABILITIES")
+print("4. FINAL SENTENCE PROBABILITIES (LOG & RAW)")
 print("=" * 60)
-for sentence_num, prob in probabilities.items():
-    print(f"Sentence {sentence_num} Probability: {prob:.6e}")
+for sentence_num, results in probabilities.items():
+    print(f"\nSentence {sentence_num}:")
+    print(f"  Log Probability (sum of logs):  log P(W) = {results['log_probability']:.4f}")
+    print(f"  Raw Probability (product):          P(W) = {results['probability']:.6e}")
