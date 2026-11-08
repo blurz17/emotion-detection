@@ -18,9 +18,16 @@ def comparison(data_set, context, word):
 def ngram_model(sentences, data_set):
     sentence_probabilities = {}
 
+    # Calculate vocabulary size (|V|) for Laplace smoothing
+    vocab = set()
+    for sentence in data_set:
+        vocab.update(sentence)
+    vocab.update(["<s>", "</s>"])
+    V = len(vocab)
+
     for number, sentence in enumerate(sentences, start=1):
         sentence = ["<s>", "<s>"] + sentence + ["</s>"]
-        probability = 1
+        probability = 1.0
 
         for i in range(2, len(sentence)):
             context = tuple(sentence[i-2:i])
@@ -28,12 +35,10 @@ def ngram_model(sentences, data_set):
 
             tria, bia = comparison(data_set, context, word)
 
-            if bia == 0:
-                word_probability = 0
-            else:
-                word_probability = tria / bia
+            # Laplace (Add-1) Smoothing
+            word_probability = (tria + 1) / (bia + V)
 
-            print(f"P({word} | {context}) = {tria}/{bia} = {word_probability}")
+            print(f"P({word} | {context}) = ({tria} + 1)/({bia} + {V}) = {word_probability:.6e}")
 
             probability *= word_probability
 

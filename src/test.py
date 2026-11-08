@@ -31,7 +31,7 @@ for idx, (raw, tokens) in enumerate(zip(selected_raw_sentences, sentences), star
     print(f"  Label:  {label_name}")
 
 print("\n" + "=" * 60)
-print("3. N-GRAM MARKOV CALCULATION STEPS")
+print("3. N-GRAM MARKOV CALCULATION STEPS (WITH LAPLACE SMOOTHING)")
 print("=" * 60)
 
 probabilities = ngram_model(sentences, data_set)
@@ -40,4 +40,4 @@ print("\n" + "=" * 60)
 print("4. FINAL SENTENCE PROBABILITIES")
 print("=" * 60)
 for sentence_num, prob in probabilities.items():
-    print(f"Sentence {sentence_num} Probability: {prob}")
+    print(f"Sentence {sentence_num} Probability: {prob:.6e}")
