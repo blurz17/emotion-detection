@@ -7,9 +7,8 @@ SRC_DIR = Path(__file__).resolve().parent.parent / "src"
 sys.path.insert(0, str(SRC_DIR))
 
 from data_loader import load_data, load_emotions
-from negation_words import NEGATIVE_WORDS, negative_words
-from ng_model import TrigramLanguageModel
-from processing import clean_noise, process_text
+from ng_model import comparison, ngram_model
+from processing import NEGATIVE_WORDS, clean_noise, process_text
 
 
 class TestDataLoader(unittest.TestCase):
@@ -46,53 +45,38 @@ class TestProcessing(unittest.TestCase):
         text = "I do not like this, I don't care"
         tokens = process_text(text)
         self.assertIn("not", tokens)
-        # Verify negation words are not removed as stopwords
         self.assertTrue("not" in tokens or "dont" in tokens)
 
     def test_lemmatization_and_lowercasing(self):
         text = "Running studies and Dogs"
         tokens = process_text(text)
-        # Should be lowercased and lemmatized
         self.assertTrue(all(w.islower() for w in tokens))
 
 
-class TestTrigramModel(unittest.TestCase):
+class TestNGramModel(unittest.TestCase):
 
     def setUp(self):
-        self.model = TrigramLanguageModel()
         self.corpus = [
             ["i", "love", "nlp"],
             ["i", "love", "python"],
             ["nlp", "is", "fun"],
         ]
-        self.model.fit(self.corpus)
 
-    def test_vocabulary(self):
-        self.assertIn("i", self.model.vocabulary)
-        self.assertIn("love", self.model.vocabulary)
-        self.assertIn("<s>", self.model.vocabulary)
-        self.assertIn("</s>", self.model.vocabulary)
-        self.assertIn("<UNK>", self.model.vocabulary)
+    def test_comparison_counts(self):
+        tria, bia = comparison(self.corpus, ("<s>", "<s>"), "i")
+        self.assertEqual(tria, 2)
+        self.assertEqual(bia, 3)
 
-    def test_probability_smoothing(self):
-        prob = self.model.calculate_probability("nlp", ("i", "love"), smoothing=True)
-        self.assertGreater(prob, 0.0)
-        self.assertLessEqual(prob, 1.0)
+    def test_comparison_zero_counts(self):
+        tria, bia = comparison(self.corpus, ("random", "word"), "missing")
+        self.assertEqual(tria, 0)
+        self.assertEqual(bia, 0)
 
-    def test_oov_probability(self):
-        prob = self.model.calculate_probability("unknownword", ("i", "love"), smoothing=True)
-        self.assertGreater(prob, 0.0)
-
-    def test_sentence_probability(self):
-        log_prob, steps = self.model.calculate_sentence_probability(["i", "love", "nlp"])
-        self.assertIsInstance(log_prob, float)
-        self.assertGreater(log_prob, float("-inf"))
-        self.assertEqual(len(steps), 4)  # (<s>, <s>)->i, (<s>, i)->love, (i, love)->nlp, (love, nlp)-></s>
-
-    def test_perplexity(self):
-        perp = self.model.calculate_perplexity(["i", "love", "nlp"])
-        self.assertGreater(perp, 0.0)
-        self.assertNotEqual(perp, float("inf"))
+    def test_ngram_model_probability(self):
+        test_sentences = [["i", "love", "nlp"]]
+        dataset = [["i", "love", "nlp"]]
+        probs = ngram_model(test_sentences, dataset)
+        self.assertEqual(probs[1], 1.0)
 
 
 if __name__ == "__main__":
